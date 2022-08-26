@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(TiendaContext))]
-    [Migration("20220825011359_MarcaCategorias")]
-    partial class MarcaCategorias
+    [Migration("20220826003009_InitialSecondCreate")]
+    partial class InitialSecondCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

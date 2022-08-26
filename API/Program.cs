@@ -1,3 +1,4 @@
+
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,12 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-var serverVersion = new MySqlServerVersion(new Version(8, 0, 30));
-
-builder.Services.AddDbContext<TiendaContext>(options =>
+builder.Services.AddDbContext<TiendaContext>(opt =>
 {
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    serverVersion);
+    var serverVersion = new MySqlServerVersion(new Version(8, 0, 30));
+    opt.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), serverVersion);
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -29,7 +28,6 @@ if (app.Environment.IsDevelopment())
 }
 
 
-//Para correr migraciones pendientes que no se hayan realizado y se crean al iniciar la aplicaci√≥n
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -43,7 +41,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = loggerFactory.CreateLogger<Program>();
-        logger.LogError(ex, "Ocurri√≥ un error durante la migraci√≥n");
+        logger.LogError(ex, "OcurriÛ un error durante la migraciÛn");
     }
 }
 
