@@ -1,10 +1,12 @@
 
+using API.Extensions;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.ConfigureCors(); //desde mi extension
 
 builder.Services.AddControllers();
 
@@ -44,6 +46,8 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Ocurrió un error durante la migración");
     }
 }
+
+app.UseCors("CorsPolicy"); //nombre de mi política
 
 app.UseHttpsRedirection();
 
