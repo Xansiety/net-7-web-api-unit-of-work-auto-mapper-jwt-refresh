@@ -1,7 +1,6 @@
 ﻿using Core.Entities;
-using Infrastructure.Data;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -9,10 +8,12 @@ namespace API.Controllers
     [ApiController]
     public class ProductosController : BaseApiController
     {
-        private readonly TiendaContext _context;
-        public ProductosController(TiendaContext context)
+
+        private readonly IUnityOfWork _unityOfWork;
+
+        public ProductosController(IUnityOfWork unityOfWork)
         {
-            _context = context;
+            _unityOfWork = unityOfWork;
         }
 
 
@@ -21,20 +22,17 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<Producto>>> Get()
         {
-            var productos = await _context.Productos.ToListAsync();
+            var productos = await _unityOfWork.Productos.GetAllAsync();
             return Ok(productos);
         }
-
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<Producto>>> Get(int id)
         {
-            var productos = await _context.Productos.FindAsync(id);
+            var productos = await _unityOfWork.Productos.GetByIdAsync(id);
             return Ok(productos);
         }
-
-
     }
 }

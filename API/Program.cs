@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.ConfigureCors(); //desde mi extension
+builder.Services.AddAplicationServices(); // Inyección de dependencias
+
 
 builder.Services.AddControllers();
 
@@ -30,22 +32,23 @@ if (app.Environment.IsDevelopment())
 }
 
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-    try
-    {
-        var context = services.GetRequiredService<TiendaContext>();
-        await context.Database.MigrateAsync();
-        await TiendaContextSeed.SeedAsync(context, loggerFactory);
-    }
-    catch (Exception ex)
-    {
-        var logger = loggerFactory.CreateLogger<Program>();
-        logger.LogError(ex, "Ocurrió un error durante la migración");
-    }
-}
+//iniciar DB si existen migraciones pendientes
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+//    try
+//    {
+//        var context = services.GetRequiredService<TiendaContext>();
+//        await context.Database.MigrateAsync();
+//        await TiendaContextSeed.SeedAsync(context, loggerFactory);
+//    }
+//    catch (Exception ex)
+//    {
+//        var logger = loggerFactory.CreateLogger<Program>();
+//        logger.LogError(ex, "Ocurrió un error durante la migración");
+//    }
+//}
 
 app.UseCors("CorsPolicy"); //nombre de mi política
 

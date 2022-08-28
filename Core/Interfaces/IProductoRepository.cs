@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Core.Interfaces;
-public interface IProductosRepository : IGenericRepository<Producto>
+public interface IProductoRepository : IGenericRepository<Producto>
 {
     Task<IEnumerable<Producto>> GetProductosMasCaros(int cantdidad);
 }
