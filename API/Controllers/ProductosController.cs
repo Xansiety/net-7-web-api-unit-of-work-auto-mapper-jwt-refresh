@@ -8,6 +8,10 @@ namespace API.Controllers
 {
     [Route("api/productos")]
     [ApiController]
+    //indicar que el controlador soporta las siguientes versiones
+    [ApiVersion("1.0")]
+    [ApiVersion("1.1")]
+    //
     public class ProductosController : BaseApiController
     {
 
@@ -21,8 +25,7 @@ namespace API.Controllers
         }
 
 
-        [HttpGet]
-        [ApiVersion("1.0")]
+        [HttpGet]      
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<ProductoListDTO>>> Get()
@@ -33,7 +36,7 @@ namespace API.Controllers
         
         
         [HttpGet]
-        [ApiVersion("1.1")]
+        [MapToApiVersion("1.1")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<ProductoDTO>>> Get1()
