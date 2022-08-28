@@ -1,7 +1,9 @@
 ﻿using API.DTOs;
+using API.Helpers;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
+using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -25,16 +27,34 @@ namespace API.Controllers
         }
 
 
-        [HttpGet]      
+        //[HttpGet]      
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //public async Task<ActionResult<IEnumerable<ProductoListDTO>>> Get()
+        //{
+        //    var productos = await _unityOfWork.Productos.GetAllAsync();
+        //    return Ok(_mapper.Map<List<ProductoListDTO>>(productos));
+        //}
+
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<ProductoListDTO>>> Get()
+        public async Task<ActionResult<Paginator<ProductoListDTO>>> Get([FromQuery] Params productParams)
         {
-            var productos = await _unityOfWork.Productos.GetAllAsync();
-            return Ok(_mapper.Map<List<ProductoListDTO>>(productos));
+            var resultado = await _unityOfWork.Productos
+                                        .GetAllAsync(productParams.PageIndex, productParams.PageSize,
+                                        productParams.Search);
+
+            var listaProductosDto = _mapper.Map<List<ProductoListDTO>>(resultado.registros);
+
+            Response.Headers.Add("X-Total-registros", resultado.totalRegistros.ToString());
+
+            return new Paginator<ProductoListDTO>(listaProductosDto, resultado.totalRegistros,
+                productParams.PageIndex, productParams.PageSize, productParams.Search);
+
         }
-        
-        
+
+
         [HttpGet]
         [MapToApiVersion("1.1")]
         [ProducesResponseType(StatusCodes.Status200OK)]
