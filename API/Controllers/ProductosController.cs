@@ -24,10 +24,10 @@ namespace API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Producto>>> Get()
+        public async Task<ActionResult<IEnumerable<ProductoListDTO>>> Get()
         {
             var productos = await _unityOfWork.Productos.GetAllAsync();
-            return Ok(productos);
+            return Ok(_mapper.Map<List<ProductoListDTO>>(productos));
         }
 
         [HttpGet("{id}")]
@@ -48,7 +48,7 @@ namespace API.Controllers
         public async Task<ActionResult<Producto>> Post(Producto producto)
         {
             _unityOfWork.Productos.Add(producto);
-            _unityOfWork.Save();
+            await _unityOfWork.SaveAsync();
             if (producto is null) return BadRequest();
 
             return CreatedAtAction(nameof(Post), new { id = producto.Id }, producto);
@@ -65,7 +65,7 @@ namespace API.Controllers
             if (producto is null) return NotFound();
 
             _unityOfWork.Productos.Update(producto);
-            _unityOfWork.Save();
+            await _unityOfWork.SaveAsync();
             if (producto is null) return BadRequest();
 
             return producto;
@@ -80,7 +80,7 @@ namespace API.Controllers
             if (producto is null) return NotFound();
 
             _unityOfWork.Productos.Remove(producto);
-            _unityOfWork.Save();
+            await _unityOfWork.SaveAsync();
 
             return NoContent();
 
