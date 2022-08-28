@@ -8,6 +8,6 @@ using System.Threading.Tasks;
 namespace Core.Interfaces;
 public interface IProductosRepository : IGenericRepository<Producto>
 {
-    IEnumerable<Producto> GetProductosMasCaros(int cantdidad);
+    Task<IEnumerable<Producto>> GetProductosMasCaros(int cantdidad);
 }
 

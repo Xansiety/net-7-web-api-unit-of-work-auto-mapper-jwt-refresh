@@ -23,32 +23,32 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
         throw new NotImplementedException();
     }
 
-    public IEnumerable<T> Find(Expression<Func<T, bool>> expression)
+    public virtual IEnumerable<T> Find(Expression<Func<T, bool>> expression)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<T>> GetAllAsync()
+    public virtual Task<IEnumerable<T>> GetAllAsync()
     {
         throw new NotImplementedException();
     }
 
-    public Task<T> GetByIdAsync(int id)
+    public virtual Task<T> GetByIdAsync(int id)
     {
         throw new NotImplementedException();
     }
 
-    public void Remove(T entity)
+    public virtual void Remove(T entity)
     {
         throw new NotImplementedException();
     }
 
-    public void RemoveRange(IEnumerable<T> entities)
+    public virtual void RemoveRange(IEnumerable<T> entities)
     {
         throw new NotImplementedException();
     }
 
-    public void Update(T entity)
+    public virtual void Update(T entity)
     {
         throw new NotImplementedException();
     }
