@@ -15,7 +15,12 @@ builder.Services.ConfigureRateLimiting();
 builder.Services.ConfigureApiVersioning();
 
 
-builder.Services.AddControllers();
+//configuración para serializar respuestas en XML
+//Por defecto resolverá en Application/json
+builder.Services.AddControllers(opt => {
+    opt.RespectBrowserAcceptHeader = true; //aceptar headers del browser
+    opt.ReturnHttpNotAcceptable = true; //devolver un mensaje de error indicando que el formato solicitado no es aceptado que soporta el servidor
+}).AddXmlDataContractSerializerFormatters();
 
 builder.Services.AddDbContext<TiendaContext>(opt =>
 {
