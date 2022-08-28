@@ -19,5 +19,10 @@ public class AutoMapperProfiles : Profile
             .ReverseMap()
             .ForMember(origen => origen.Categoria, destino => destino.Ignore())
             .ForMember(origen => origen.Marca, destino => destino.Ignore());
+
+        CreateMap<Producto, PostPutProductoDTO>() 
+             .ReverseMap()
+             .ForMember(origen => origen.Categoria, destino => destino.Ignore())
+             .ForMember(origen => origen.Marca, destino => destino.Ignore());
     }
 }
