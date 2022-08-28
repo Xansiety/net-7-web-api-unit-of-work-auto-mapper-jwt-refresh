@@ -1,5 +1,6 @@
 
 using API.Extensions;
+using AspNetCoreRateLimit;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -10,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureCors(); //desde mi extension
 builder.Services.AddAplicationServices(); // Inyección de dependencias
 builder.Services.AddAutoMapper(Assembly.GetEntryAssembly());
+builder.Services.ConfigureRateLimiting();
 
 
 builder.Services.AddControllers();
@@ -26,6 +28,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
+app.UseIpRateLimiting();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
