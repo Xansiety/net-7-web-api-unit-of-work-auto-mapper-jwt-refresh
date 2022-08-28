@@ -48,23 +48,27 @@ public static class ApplicationServiceExtensions
             options.RealIpHeader = "X-Real-IP";  //encabezado que leeremos
             options.GeneralRules = new List<RateLimitRule>
             {
-                new RateLimitRule { 
+                new RateLimitRule {
                     Endpoint = "*", // a todos los endpoints
                     Period = "10s", // por un periodo de cada 10 segundos
                     Limit = 2 //un limite de 2 peticiones en ese intervalo
                 }
             };
-        });  
+        });
     }
 
     public static void ConfigureApiVersioning(this IServiceCollection services)
     {
         services.AddApiVersioning(opt =>
         {
-            opt.DefaultApiVersion = new ApiVersion(1, 0);
-            opt.AssumeDefaultVersionWhenUnspecified = true;
+            opt.DefaultApiVersion = new ApiVersion(1, 0); //opción de version por default
+            opt.AssumeDefaultVersionWhenUnspecified = true; // usar version por defecto
             //opt.ApiVersionReader = new QueryStringApiVersionReader("ver"); //establecer version mediante queryString
-            opt.ApiVersionReader = new HeaderApiVersionReader("X-Version");
+            //opt.ApiVersionReader = new HeaderApiVersionReader("X-Version"); // establecer version mediante Header
+            opt.ApiVersionReader = ApiVersionReader.Combine( //Combinar versionamiento queryString o Header lo definirá el cliente
+                new QueryStringApiVersionReader("ver"),
+                 new HeaderApiVersionReader("X-Version")
+            );
             opt.ReportApiVersions = true;
         });
     }
