@@ -1,4 +1,6 @@
-﻿using Core.Entities;
+﻿using API.DTOs;
+using AutoMapper;
+using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,12 @@ namespace API.Controllers
     {
 
         private readonly IUnityOfWork _unityOfWork;
+        private readonly IMapper _mapper;
 
-        public ProductosController(IUnityOfWork unityOfWork)
+        public ProductosController(IUnityOfWork unityOfWork, IMapper mapper)
         {
             _unityOfWork = unityOfWork;
+            _mapper = mapper;
         }
 
 
@@ -28,11 +32,13 @@ namespace API.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Producto>>> Get(int id)
+        public async Task<ActionResult<ProductoDTO>> Get(int id)
         {
-            var productos = await _unityOfWork.Productos.GetByIdAsync(id);
-            return Ok(productos);
+            var producto = await _unityOfWork.Productos.GetByIdAsync(id); 
+            if (producto is null) return NotFound();  
+            return Ok(_mapper.Map<ProductoDTO>(producto));
         }
 
 
