@@ -12,6 +12,7 @@ builder.Services.ConfigureCors(); //desde mi extension
 builder.Services.AddAplicationServices(); // Inyección de dependencias
 builder.Services.AddAutoMapper(Assembly.GetEntryAssembly());
 builder.Services.ConfigureRateLimiting();
+builder.Services.ConfigureApiVersioning();
 
 
 builder.Services.AddControllers();

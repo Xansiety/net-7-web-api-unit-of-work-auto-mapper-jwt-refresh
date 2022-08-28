@@ -3,6 +3,8 @@ using Core.Interfaces;
 using Infrastructure.Repositories;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 namespace API.Extensions;
 public static class ApplicationServiceExtensions
@@ -52,8 +54,18 @@ public static class ApplicationServiceExtensions
                     Limit = 2 //un limite de 2 peticiones en ese intervalo
                 }
             };
-        });
-
+        });  
     }
+
+    public static void ConfigureApiVersioning(this IServiceCollection services)
+    {
+        services.AddApiVersioning(opt =>
+        {
+            opt.DefaultApiVersion = new ApiVersion(1, 0);
+            opt.AssumeDefaultVersionWhenUnspecified = true;
+            opt.ApiVersionReader = new QueryStringApiVersionReader("ver");
+        });
+    }
+
 }
 
