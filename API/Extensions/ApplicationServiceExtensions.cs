@@ -1,8 +1,11 @@
-﻿using AspNetCoreRateLimit;
+﻿using API.Services;
+using AspNetCoreRateLimit;
+using Core.Entities.Auth;
 using Core.Interfaces;
 using Infrastructure.Repositories;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 
@@ -22,10 +25,12 @@ public static class ApplicationServiceExtensions
     // Implementación de dependencias
     public static void AddAplicationServices(this IServiceCollection services)
     {
-        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); //generic
+        //services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); //generic
         //services.AddScoped<IProductoRepository, ProductoRepository>();
         //services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         //services.AddScoped<IMarcaRepository, MarcaRepository>();
+        services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUnityOfWork, UnitOfWork>(); // Unidad de trabajo
     }
 

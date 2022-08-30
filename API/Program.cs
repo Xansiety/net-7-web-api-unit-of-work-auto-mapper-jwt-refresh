@@ -67,6 +67,9 @@ app.UseCors("CorsPolicy"); //nombre de mi política
 
 app.UseHttpsRedirection();
 
+//siempre debe ir antes que authorization
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
