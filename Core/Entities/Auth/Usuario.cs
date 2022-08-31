@@ -17,6 +17,7 @@ namespace Core.Entities.Auth
 
         //relación
         public ICollection<Rol> Roles { get; set; } = new HashSet<Rol>();
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new HashSet<RefreshToken>();
         //clase relaciones
         public ICollection<UsuariosRoles> UsuariosRoles { get; set; }
     }

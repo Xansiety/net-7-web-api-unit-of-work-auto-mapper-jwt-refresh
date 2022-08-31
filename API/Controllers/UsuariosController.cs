@@ -28,6 +28,7 @@ namespace API.Controllers
         public async Task<ActionResult> RegisterAsync(LoginDTO model)
         {
             var result = await _userService.GetTokenAsync(model);
+            SetRefreshTokenInCookie(result.RefreshToken);
             return Ok(result);
         }
 
@@ -39,5 +40,27 @@ namespace API.Controllers
             return Ok(result);
         }
 
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            var response = await _userService.RefreshTokenAsync(refreshToken);
+            if (!string.IsNullOrEmpty(response.RefreshToken))
+                SetRefreshTokenInCookie(response.RefreshToken);
+            return Ok(response);
+        }
+
+
+        //asignamos el refresh token en mi cookie de solo http
+        private void SetRefreshTokenInCookie(string refreshToken)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7),
+            };
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+        }
     }
 }
