@@ -1,5 +1,5 @@
-﻿using API.Services;
-using Microsoft.AspNetCore.Http;
+﻿using API.Dtos;
+using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -15,6 +15,12 @@ namespace API.Controllers
             _userService = userService;
         }
 
+        [HttpPost("register")]
+        public async Task<ActionResult> RegisterAsync(RegisterDTO model)
+        {
+            var result = await _userService.RegisterAsync(model);
+            return Ok(result);
+        }
 
     }
 }
