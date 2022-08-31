@@ -1,9 +1,15 @@
 ﻿using API.Dtos;
+using API.DTOs.AuthDTO;
 using API.Helpers;
 using Core.Entities.Auth;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
 namespace API.Services;
 public class UserService : IUserService
 {
@@ -18,6 +24,72 @@ public class UserService : IUserService
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
     }
+
+    public async Task<DatosUsuarioDTO> GetTokenAsync(LoginDTO model)
+    {
+        DatosUsuarioDTO datosUsuarioDto = new DatosUsuarioDTO();
+        //validar el usuario y sus roles
+        var usuario = await _unitOfWork.Usuarios.GetByUserNameAsync(model.Username);
+
+        if (usuario == null)
+        {
+            datosUsuarioDto.EstaAutenticado = false;
+            datosUsuarioDto.Mensaje = $"No existe ningún usuario con el username {model.Username}.";
+            return datosUsuarioDto;
+        }
+
+        //si existe el usuario, validamos el password
+        var resultado = _passwordHasher.VerifyHashedPassword(usuario, usuario.Password, model.Password);
+
+        //si la validación es correcta asignamos la información
+        if (resultado == PasswordVerificationResult.Success)
+        {
+            datosUsuarioDto.EstaAutenticado = true;
+            JwtSecurityToken jwtSecurityToken = CreateJwtToken(usuario); //creamos el token
+            datosUsuarioDto.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+            datosUsuarioDto.Email = usuario.Email;
+            datosUsuarioDto.UserName = usuario.UserName;
+            datosUsuarioDto.Roles = usuario.Roles
+                                            .Select(u => u.Nombre)
+                                            .ToList(); //arreglo de roles
+            return datosUsuarioDto;
+        }
+        //si no esta autenticado
+        datosUsuarioDto.EstaAutenticado = false;
+        datosUsuarioDto.Mensaje = $"Credenciales incorrectas para el usuario {usuario.UserName}.";
+        return datosUsuarioDto;
+    }
+
+    private JwtSecurityToken CreateJwtToken(Usuario usuario)
+    {
+        //añadimos los roles en una lista de claims
+        var roles = usuario.Roles;
+        var roleClaims = new List<Claim>();
+        foreach (var role in roles)
+        {
+            roleClaims.Add(new Claim("roles", role.Nombre));
+        }
+        var claims = new[]
+        {
+          new Claim(JwtRegisteredClaimNames.Sub, usuario.UserName),
+          new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+          new Claim(JwtRegisteredClaimNames.Email, usuario.Email),
+          new Claim("uid", usuario.Id.ToString())
+        }
+        .Union(roleClaims); //unimos los roles
+
+        //generamos el token de autentificación con los datos del appSettings 
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
+        var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+        var jwtSecurityToken = new JwtSecurityToken(
+            issuer: _jwt.Issuer,
+            audience: _jwt.Audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwt.DurationInMinutes)),
+            signingCredentials: signingCredentials);
+        return jwtSecurityToken;
+    }
+
 
     public async Task<string> RegisterAsync(RegisterDTO registerDto)
     {

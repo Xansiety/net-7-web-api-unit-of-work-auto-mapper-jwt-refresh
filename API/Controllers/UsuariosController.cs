@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using API.DTOs.AuthDTO;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,14 @@ namespace API.Controllers
         public async Task<ActionResult> RegisterAsync(RegisterDTO model)
         {
             var result = await _userService.RegisterAsync(model);
+            return Ok(result);
+        }
+
+
+        [HttpPost("token")]
+        public async Task<ActionResult> RegisterAsync(LoginDTO model)
+        {
+            var result = await _userService.GetTokenAsync(model);
             return Ok(result);
         }
 
