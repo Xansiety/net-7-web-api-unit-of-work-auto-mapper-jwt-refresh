@@ -13,6 +13,8 @@ builder.Services.AddAplicationServices(); // Inyección de dependencias
 builder.Services.AddAutoMapper(Assembly.GetEntryAssembly());
 builder.Services.ConfigureRateLimiting();
 builder.Services.ConfigureApiVersioning();
+//JWT
+builder.Services.AddJwt(configuration: builder.Configuration);
 
 
 //configuración para serializar respuestas en XML
