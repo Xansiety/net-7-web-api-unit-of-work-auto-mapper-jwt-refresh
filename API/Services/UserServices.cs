@@ -1,6 +1,7 @@
 ﻿using API.Dtos;
 using API.DTOs.AuthDTO;
 using API.Helpers;
+using Core.Entities;
 using Core.Entities.Auth;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace API.Services;
@@ -52,6 +54,27 @@ public class UserService : IUserService
             datosUsuarioDto.Roles = usuario.Roles
                                             .Select(u => u.Nombre)
                                             .ToList(); //arreglo de roles
+
+
+            //lógica para refresh token
+
+            //si existe algún RefreshToken activo regreso el token
+            if (usuario.RefreshTokens.Any(a => a.IsActive))
+            {
+                var activeRefreshToken = usuario.RefreshTokens.Where(a => a.IsActive == true).FirstOrDefault();
+                datosUsuarioDto.RefreshToken = activeRefreshToken.Token;
+                datosUsuarioDto.RefreshTokenExpiration = activeRefreshToken.Expires;
+            }
+            else
+            {
+                //se crea un nuevo token
+                var refreshToken = CreateRefreshToken();
+                datosUsuarioDto.RefreshToken = refreshToken.Token;
+                datosUsuarioDto.RefreshTokenExpiration = refreshToken.Expires;
+                usuario.RefreshTokens.Add(refreshToken);
+                _unitOfWork.Usuarios.Update(usuario);
+                await _unitOfWork.SaveAsync();
+            }
             return datosUsuarioDto;
         }
         //si no esta autenticado
@@ -89,6 +112,64 @@ public class UserService : IUserService
             signingCredentials: signingCredentials);
         return jwtSecurityToken;
     }
+
+
+    private RefreshToken CreateRefreshToken()
+    {
+        var randonNumber = new byte[32];
+        using var generator = RandomNumberGenerator.Create();
+        generator.GetBytes(randonNumber);
+        return new RefreshToken
+        {
+            Token = Convert.ToBase64String(randonNumber),
+            Expires = DateTime.UtcNow.AddDays(7),
+            Created = DateTime.UtcNow        
+        };
+    }
+
+    public async Task<DatosUsuarioDTO> RefreshTokenAsync(string refreshToken)
+    {
+        var datosUsuarioDto = new DatosUsuarioDTO();
+
+        var usuario = await _unitOfWork.Usuarios
+                        .GetByRefreshTokenAsync(refreshToken);
+
+        if (usuario == null)
+        {
+            datosUsuarioDto.EstaAutenticado = false;
+            datosUsuarioDto.Mensaje = $"El token no pertenece a ningún usuario.";
+            return datosUsuarioDto;
+        }
+
+        var refreshTokenBd = usuario.RefreshTokens.Single(x => x.Token == refreshToken);
+
+        if (!refreshTokenBd.IsActive)
+        {
+            datosUsuarioDto.EstaAutenticado = false;
+            datosUsuarioDto.Mensaje = $"El token no está activo.";
+            return datosUsuarioDto;
+        }
+        //Revocamos el Refresh Token actual y
+        refreshTokenBd.Revoked = DateTime.UtcNow;
+        //generamos un nuevo Refresh Token y lo guardamos en la Base de Datos
+        var newRefreshToken = CreateRefreshToken();
+        usuario.RefreshTokens.Add(newRefreshToken);
+        _unitOfWork.Usuarios.Update(usuario);
+        await _unitOfWork.SaveAsync();
+        //Generamos un nuevo Json Web Token 😊
+        datosUsuarioDto.EstaAutenticado = true;
+        JwtSecurityToken jwtSecurityToken = CreateJwtToken(usuario);
+        datosUsuarioDto.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        datosUsuarioDto.Email = usuario.Email;
+        datosUsuarioDto.UserName = usuario.UserName;
+        datosUsuarioDto.Roles = usuario.Roles
+                                        .Select(u => u.Nombre)
+                                        .ToList();
+        datosUsuarioDto.RefreshToken = newRefreshToken.Token;
+        datosUsuarioDto.RefreshTokenExpiration = newRefreshToken.Expires;
+        return datosUsuarioDto;
+    }
+
 
 
     public async Task<string> RegisterAsync(RegisterDTO registerDto)
@@ -135,7 +216,7 @@ public class UserService : IUserService
             return $"El usuario con {registerDto.Username} ya se encuentra registrado.";
         }
     }
-     
+
     public async Task<string> AddRoleAsync(AddRoleDTO model)
     {
 
