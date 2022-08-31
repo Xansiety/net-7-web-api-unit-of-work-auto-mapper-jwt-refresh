@@ -4,6 +4,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -13,7 +14,8 @@ namespace API.Controllers
     //indicar que el controlador soporta las siguientes versiones
     [ApiVersion("1.0")]
     [ApiVersion("1.1")]
-    //
+    //Authorization
+    [Authorize]
     public class ProductosController : BaseApiController
     {
 
