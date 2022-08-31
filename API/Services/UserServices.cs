@@ -135,5 +135,47 @@ public class UserService : IUserService
             return $"El usuario con {registerDto.Username} ya se encuentra registrado.";
         }
     }
+     
+    public async Task<string> AddRoleAsync(AddRoleDTO model)
+    {
+
+        var usuario = await _unitOfWork.Usuarios
+                    .GetByUserNameAsync(model.Username);
+
+        if (usuario == null)
+        {
+            return $"No existe algún usuario registrado con la cuenta {model.Username}.";
+        }
+
+
+        var resultado = _passwordHasher.VerifyHashedPassword(usuario, usuario.Password, model.Password);
+
+        if (resultado == PasswordVerificationResult.Success)
+        {
+
+
+            var rolExiste = _unitOfWork.Roles
+                                        .Find(u => u.Nombre.ToLower() == model.Role.ToLower())
+                                        .FirstOrDefault();
+
+            if (rolExiste != null)
+            {
+                var usuarioTieneRol = usuario.Roles
+                                            .Any(u => u.Id == rolExiste.Id);
+
+                if (usuarioTieneRol == false)
+                {
+                    usuario.Roles.Add(rolExiste);
+                    _unitOfWork.Usuarios.Update(usuario);
+                    await _unitOfWork.SaveAsync();
+                }
+
+                return $"Rol {model.Role} agregado a la cuenta {model.Username} de forma exitosa.";
+            }
+
+            return $"Rol {model.Role} no encontrado.";
+        }
+        return $"Credenciales incorrectas para el usuario {usuario.UserName}.";
+    }
 
 }
