@@ -333,6 +333,99 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "RefreshToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const datosUsuario = pm.response.json();\r",
+									"pm.test(\"Has properties\", function(){\r",
+									"    pm.expect(datosUsuario).to.have.property('userName')  \r",
+									"    pm.expect(datosUsuario).to.have.property('token')\r",
+									"    pm.expect(datosUsuario).to.have.property('email')\r",
+									"})\r",
+									"\r",
+									"if(pm.test('Has properties')){\r",
+									"    pm.globals.set('token', datosUsuario.token)\r",
+									"}\r",
+									" "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://localhost:7062/api/usuarios/refresh",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7062",
+							"path": [
+								"api",
+								"usuarios",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AgregarRol",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// const datosUsuario = pm.response.json();\r",
+									"// pm.test(\"Has properties\", function(){\r",
+									"//     pm.expect(datosUsuario).to.have.property('userName')  \r",
+									"//     pm.expect(datosUsuario).to.have.property('token')\r",
+									"//     pm.expect(datosUsuario).to.have.property('email')\r",
+									"// })\r",
+									"\r",
+									"// if(pm.test('Has properties')){\r",
+									"//     pm.globals.set('token', datosUsuario.token)\r",
+									"// }\r",
+									" "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{    \r\n    \"Username\": \"ferando543@outlook.com\",\r\n    \"Password\":\"!Abc123\",\r\n    \"Role\": \"Administrador\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:7062/api/usuarios/addrole",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "7062",
+							"path": [
+								"api",
+								"usuarios",
+								"addrole"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
