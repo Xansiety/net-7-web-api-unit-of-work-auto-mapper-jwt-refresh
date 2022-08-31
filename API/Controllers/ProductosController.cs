@@ -4,6 +4,8 @@ using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -13,7 +15,8 @@ namespace API.Controllers
     //indicar que el controlador soporta las siguientes versiones
     [ApiVersion("1.0")]
     [ApiVersion("1.1")]
-    //
+    //Authorization
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Administrador")]
     public class ProductosController : BaseApiController
     {
 
@@ -25,17 +28,7 @@ namespace API.Controllers
             _unityOfWork = unityOfWork;
             _mapper = mapper;
         }
-
-
-        //[HttpGet]      
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public async Task<ActionResult<IEnumerable<ProductoListDTO>>> Get()
-        //{
-        //    var productos = await _unityOfWork.Productos.GetAllAsync();
-        //    return Ok(_mapper.Map<List<ProductoListDTO>>(productos));
-        //}
-
+         
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

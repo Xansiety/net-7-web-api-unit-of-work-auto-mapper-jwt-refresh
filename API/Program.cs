@@ -13,6 +13,8 @@ builder.Services.AddAplicationServices(); // Inyección de dependencias
 builder.Services.AddAutoMapper(Assembly.GetEntryAssembly());
 builder.Services.ConfigureRateLimiting();
 builder.Services.ConfigureApiVersioning();
+//JWT
+builder.Services.AddJwt(configuration: builder.Configuration);
 
 
 //configuración para serializar respuestas en XML
@@ -45,26 +47,30 @@ if (app.Environment.IsDevelopment())
 
 
 //iniciar DB si existen migraciones pendientes
-//using (var scope = app.Services.CreateScope())
-//{
-//    var services = scope.ServiceProvider;
-//    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-//    try
-//    {
-//        var context = services.GetRequiredService<TiendaContext>();
-//        await context.Database.MigrateAsync();
-//        await TiendaContextSeed.SeedAsync(context, loggerFactory);
-//    }
-//    catch (Exception ex)
-//    {
-//        var logger = loggerFactory.CreateLogger<Program>();
-//        logger.LogError(ex, "Ocurrió un error durante la migración");
-//    }
-//}
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+    try
+    {
+        var context = services.GetRequiredService<TiendaContext>();
+        await context.Database.MigrateAsync();
+        await TiendaContextSeed.SeedAsync(context, loggerFactory);
+        await TiendaContextSeed.SeedRolesAsync(context, loggerFactory);
+    }
+    catch (Exception ex)
+    {
+        var logger = loggerFactory.CreateLogger<Program>();
+        logger.LogError(ex, "Ocurrió un error durante la migración");
+    }
+}
 
 app.UseCors("CorsPolicy"); //nombre de mi política
 
 app.UseHttpsRedirection();
+
+//siempre debe ir antes que authorization
+app.UseAuthentication();
 
 app.UseAuthorization();
 

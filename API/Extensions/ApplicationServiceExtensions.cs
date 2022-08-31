@@ -1,10 +1,17 @@
-﻿using AspNetCoreRateLimit;
+﻿using API.Helpers;
+using API.Services;
+using AspNetCoreRateLimit;
+using Core.Entities.Auth;
 using Core.Interfaces;
 using Infrastructure.Repositories;
 using Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace API.Extensions;
 public static class ApplicationServiceExtensions
@@ -22,10 +29,12 @@ public static class ApplicationServiceExtensions
     // Implementación de dependencias
     public static void AddAplicationServices(this IServiceCollection services)
     {
-        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); //generic
+        //services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)); //generic
         //services.AddScoped<IProductoRepository, ProductoRepository>();
         //services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         //services.AddScoped<IMarcaRepository, MarcaRepository>();
+        services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUnityOfWork, UnitOfWork>(); // Unidad de trabajo
     }
 
@@ -71,6 +80,39 @@ public static class ApplicationServiceExtensions
             );
             opt.ReportApiVersions = true;
         });
+    }
+
+
+    public static void AddJwt(this IServiceCollection services, IConfiguration configuration)
+    {
+        //configuración desde AppSettings y se lo asignamos a la clase rol
+        services.Configure<JWT>(configuration.GetSection("JWT"));
+
+        //Se añade configuración Autentificación
+        //método de extension que añade el método de autentificación
+        services.AddAuthentication(options =>
+        {
+            //definimos el tipo de autentificación que necesitamos
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+            //configuramos la informacion del token
+            .AddJwtBearer(opt =>
+            {
+                opt.RequireHttpsMetadata = false; //definimos si necesitamos una conexión https //e prod se debe pasar a true
+                opt.SaveToken = false;
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidIssuer = configuration["JWT:Issuer"], //asignamos los valores desde al appsetting
+                    ValidAudience = configuration["JWT:Audience"],//asignamos los valores desde al appsetting
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"])) //asignamos los valores desde al appsetting
+                };
+            });
     }
 
 }
