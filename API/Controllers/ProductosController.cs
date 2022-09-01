@@ -95,6 +95,9 @@ namespace API.Controllers
         {
             if (productoDTO is null) return NotFound(new APIResponse(404, "El producto solicitado no existe."));
 
+            var productoDB = await _unityOfWork.Productos.GetByIdAsync(id);
+            if (productoDB is null) return NotFound(new APIResponse(404, "El producto solicitado no existe."));
+
             var producto = _mapper.Map<Producto>(productoDTO); 
             _unityOfWork.Productos.Update(producto);
             await _unityOfWork.SaveAsync(); 
