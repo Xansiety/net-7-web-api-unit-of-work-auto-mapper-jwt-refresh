@@ -58,23 +58,23 @@ if (app.Environment.IsDevelopment())
 
 
 //iniciar DB si existen migraciones pendientes
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-    try
-    {
-        var context = services.GetRequiredService<TiendaContext>();
-        await context.Database.MigrateAsync();
-        await TiendaContextSeed.SeedAsync(context, loggerFactory);
-        await TiendaContextSeed.SeedRolesAsync(context, loggerFactory);
-    }
-    catch (Exception ex)
-    {
-        var _logger = loggerFactory.CreateLogger<Program>();
-        _logger.LogError(ex, "Ocurrió un error durante la migración");
-    }
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+//    try
+//    {
+//        var context = services.GetRequiredService<TiendaContext>();
+//        await context.Database.MigrateAsync();
+//        await TiendaContextSeed.SeedAsync(context, loggerFactory);
+//        await TiendaContextSeed.SeedRolesAsync(context, loggerFactory);
+//    }
+//    catch (Exception ex)
+//    {
+//        var _logger = loggerFactory.CreateLogger<Program>();
+//        _logger.LogError(ex, "Ocurrió un error durante la migración");
+//    }
+//}
 
 app.UseCors("CorsPolicy"); //nombre de mi política
 
