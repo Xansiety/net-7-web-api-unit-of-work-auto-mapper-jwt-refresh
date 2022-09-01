@@ -3,11 +3,22 @@ using API.Extensions;
 using AspNetCoreRateLimit;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+//SeriLog -> Configuración obtenida desde AppSettings
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+//agregamos SeriLog al sistema integrado de Loggin
+//builder.Logging.ClearProviders(); //limpiar los proveedores por defecto
+builder.Logging.AddSerilog(logger: logger);
+
 builder.Services.ConfigureCors(); //desde mi extension
 builder.Services.AddAplicationServices(); // Inyección de dependencias
 builder.Services.AddAutoMapper(Assembly.GetEntryAssembly());
