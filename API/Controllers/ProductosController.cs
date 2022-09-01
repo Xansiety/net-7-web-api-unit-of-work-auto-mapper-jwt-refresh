@@ -1,5 +1,6 @@
 ﻿using API.DTOs;
 using API.Helpers;
+using API.Helpers.Errors;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
@@ -66,7 +67,7 @@ namespace API.Controllers
         public async Task<ActionResult<ProductoDTO>> Get(int id)
         {
             var producto = await _unityOfWork.Productos.GetByIdAsync(id); 
-            if (producto is null) return NotFound();  
+            if (producto is null) return NotFound(new APIResponse(404, "El producto solicitado no existe."));  
             return Ok(_mapper.Map<ProductoDTO>(producto));
         }
 
@@ -79,7 +80,7 @@ namespace API.Controllers
             var producto = _mapper.Map<Producto>(productDTO);
             _unityOfWork.Productos.Add(producto);
             await _unityOfWork.SaveAsync();
-            if (producto is null) return BadRequest();
+            if (producto is null) return BadRequest(new APIResponse(400));
             productDTO.Id = producto.Id;
             return CreatedAtAction(nameof(Post), new { id = productDTO.Id }, productDTO);
         }
@@ -92,7 +93,10 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<PostPutProductoDTO>> Put(int id, [FromBody] PostPutProductoDTO productoDTO)
         {
-            if (productoDTO is null) return NotFound();
+            if (productoDTO is null) return NotFound(new APIResponse(404, "El producto solicitado no existe."));
+
+            var productoDB = await _unityOfWork.Productos.GetByIdAsync(id);
+            if (productoDB is null) return NotFound(new APIResponse(404, "El producto solicitado no existe."));
 
             var producto = _mapper.Map<Producto>(productoDTO); 
             _unityOfWork.Productos.Update(producto);
@@ -106,7 +110,7 @@ namespace API.Controllers
         public async Task<ActionResult> Delete(int id)
         {
             var producto = await _unityOfWork.Productos.GetByIdAsync(id);
-            if (producto is null) return NotFound();
+            if (producto is null) return NotFound(new APIResponse(404, "El producto solicitado no existe."));
 
             _unityOfWork.Productos.Remove(producto);
             await _unityOfWork.SaveAsync();

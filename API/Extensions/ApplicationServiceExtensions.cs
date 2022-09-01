@@ -1,4 +1,5 @@
 ﻿using API.Helpers;
+using API.Helpers.Errors;
 using API.Services;
 using AspNetCoreRateLimit;
 using Core.Entities.Auth;
@@ -16,6 +17,7 @@ using System.Text;
 namespace API.Extensions;
 public static class ApplicationServiceExtensions
 {
+    //CORS
     public static void ConfigureCors(this IServiceCollection services) =>
         services.AddCors(options =>
         {
@@ -66,6 +68,8 @@ public static class ApplicationServiceExtensions
         });
     }
 
+
+    //Versionamiento
     public static void ConfigureApiVersioning(this IServiceCollection services)
     {
         services.AddApiVersioning(opt =>
@@ -83,6 +87,8 @@ public static class ApplicationServiceExtensions
     }
 
 
+
+    //JWT
     public static void AddJwt(this IServiceCollection services, IConfiguration configuration)
     {
         //configuración desde AppSettings y se lo asignamos a la clase rol
@@ -113,6 +119,30 @@ public static class ApplicationServiceExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"])) //asignamos los valores desde al appsetting
                 };
             });
+    }
+
+
+
+    //Validación de errores del modelState
+    public static void AddValidationErrors(this IServiceCollection services)
+    {
+        services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = actionContext =>
+            {
+
+                var errors = actionContext.ModelState.Where(u => u.Value.Errors.Count > 0)
+                                                .SelectMany(u => u.Value.Errors)
+                                                .Select(u => u.ErrorMessage).ToArray();
+
+                var errorResponse = new APIValidation()
+                {
+                    Errors = errors
+                };
+
+                return new BadRequestObjectResult(errorResponse);
+            };
+        });
     }
 
 }
