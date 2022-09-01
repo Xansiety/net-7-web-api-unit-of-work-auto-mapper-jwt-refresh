@@ -36,6 +36,10 @@ builder.Services.AddControllers(opt => {
     opt.ReturnHttpNotAcceptable = true; //devolver un mensaje de error indicando que el formato solicitado no es aceptado que soporta el servidor
 }).AddXmlDataContractSerializerFormatters();
 
+//es importante que esto este después de controladores para el manejo de validaciones de model state
+builder.Services.AddValidationErrors();
+
+
 builder.Services.AddDbContext<TiendaContext>(opt =>
 {
     var serverVersion = new MySqlServerVersion(new Version(8, 0, 30));
