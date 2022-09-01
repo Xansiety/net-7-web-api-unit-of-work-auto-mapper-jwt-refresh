@@ -1,5 +1,6 @@
 
 using API.Extensions;
+using API.Middlewares;
 using AspNetCoreRateLimit;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+//MiddleWare para manejo de excepciones de forma global
+app.UseMiddleware<ExtendExceptionMiddleware>();
 
 app.UseIpRateLimiting();
 // Configure the HTTP request pipeline.
