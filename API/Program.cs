@@ -42,8 +42,13 @@ builder.Services.AddValidationErrors();
 
 builder.Services.AddDbContext<TiendaContext>(opt =>
 {
-    var serverVersion = new MySqlServerVersion(new Version(8, 0, 30));
-    opt.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), serverVersion);
+    //var serverVersion = new MySqlServerVersion(new Version(8, 0, 30));
+    //opt.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), serverVersion);
+
+    //detect automaticamente la version del motor de base de datos
+    string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
