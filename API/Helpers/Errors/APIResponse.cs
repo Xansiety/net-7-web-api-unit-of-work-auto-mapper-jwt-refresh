@@ -5,10 +5,10 @@ public class APIResponse
     public string Message { get; set; }
 
     // En respuestas complejas de XML de debe de añadir este constructor por lo cual se agrega, si solo de devuelve JSON no es necesario
-    public APIResponse()
-    {
+    //public APIResponse()
+    //{
 
-    }
+    //}
 
 
     public APIResponse(int statusCode, string message = null)

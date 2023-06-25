@@ -11,9 +11,8 @@ public class ProductoListDTO
     public string Categoria { get; set; }
 
     // En respuestas complejas de XML de debe de añadir este constructor por lo cual se agrega, si solo de devuelve JSON no es necesario
+    //public ProductoListDTO()
+    //{
 
-    public ProductoListDTO()
-    {
-
-    }
+    //}
 }
