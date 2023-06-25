@@ -101,7 +101,7 @@ public class UserService : IUserService
         }
         .Union(roleClaims); //unimos los roles
 
-        //generamos el token de autentificación con los datos del appSettings 
+        //generamos el token de identificación con los datos del appSettings 
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
         var jwtSecurityToken = new JwtSecurityToken(
